@@ -15,21 +15,45 @@ public class CountWords {
 	static void countEachWord(String fileName, Map<String, Integer> words) throws FileNotFoundException {
 		Scanner file = new Scanner(new File(fileName));
 		while(file.hasNext()) {
-			String word = file.next();
-			Integer count = words.get(word);
-			if(count != null)
-			{
-				count++;
+			String word = file.next().toLowerCase();
+			if(word.contentEquals("<p>")) {
+				do {
+					word = file.next().toLowerCase();
+					word = word.replaceAll(",", "").replaceAll("!", "")
+							.replaceAll("\\.", "").replaceAll("'", "");
+					
+					Integer count = words.get(word);
+					if(word.contains("<") || word.contains(">") || word.contains("/") 
+						|| word.contains(":") || word.contains("&")) {
+						continue;
+					} 
+					if(count != null)
+					{
+						count++;
+					}
+					else {
+						count = 1;
+					}
+					if(!word.contentEquals("</p>")) {
+						words.put(word, count);
+					}
+					
+				}while(!word.contentEquals("</p>"));
+				
 			}
-			else {
-				count = 1;
-			}
-			words.put(word, count);
+			
+			
 			
 		}
 		file.close();
 	}
 	
+	static void printResults(List <Entry<String, Integer>> list, int amount) {
+		for(int i = 0; i < amount; i++)
+		{
+			System.out.println(i+1 + ": " + list.get(i));
+		}
+	}
 	
 	public static void main(String[] args) throws FileNotFoundException {
 
@@ -39,12 +63,8 @@ public class CountWords {
 		List <Entry<String, Integer>> nlist = new ArrayList<>(map.entrySet());
 		nlist.sort(Entry.comparingByValue(Comparator.reverseOrder()));
 		
-		for(int i = 0; i < 20; i++)
-		{
-			System.out.println(i+1 + ":" + nlist.get(i));
-		}
+		printResults(nlist, 20);
 		//nlist.forEach(System.out::println);
-		//Stream<Map.Entry<K, V>> sorted = map.entrySet().stream().sorted(Map.Entry.comparingByValue()).limit(20).forEach(System.out::println);
 	}
 
 }
